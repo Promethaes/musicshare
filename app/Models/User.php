@@ -46,8 +46,8 @@ class User extends Authenticatable
         ];
     }
 
-    public function verses(): HasMany
-    {
+    public function verses(): HasMany{
         return $this->hasMany(Verse::class);
     }
+
 }

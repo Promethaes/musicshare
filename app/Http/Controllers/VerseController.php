@@ -17,7 +17,10 @@ class VerseController extends Controller
     public function index(): View
     {
         //
-        return view('verses.index');
+        //  return view('verses.index');
+        return view('verses.index', [
+            'verses' => Verse::with('user')->latest()->get(),
+        ]);
     }
 
     /**
@@ -35,27 +38,27 @@ class VerseController extends Controller
     {
         //
 
+        // $file = $request->file('file');
+        // $file->store('verses');
+
+        $validated = $request->validate([
+            'file' => 'required|max:2048',
+        ]);
+
         $file = $request->file('file');
-        $file->store('verses');
-
-        // $verseModel = new Verse;
-
-        // if ($request->file()) {
-        //     $verseName = time() . '_' . $request->file->getClientOriginalName();
-        //     $versePath = $request->file('file')->storeAs('uploads', $verseName, 'public');
-        //     $verseModel->name = time() . '_' . $request->file->getClientOriginalName();
-        //     $verseModel->file_path = '/storage/' . $versePath;
-        //     $verseModel->save();
-        //     return back()
-        //         ->with('success', 'Verse added.')
-        //         ->with('file', $verseName);
-        // }
+        if ($file) {
+            $verseModel = $request->user()->verses()->create($validated);
+            $verseName = time() . '_' . $file->getClientOriginalName();
+            $versePath = $file->store('verses');
+            $verseModel->name = time() . '_' . $file->getClientOriginalName();
+            $verseModel->file_path = '/storage/' . $versePath;
+            $verseModel->save();
+            // $request->user()->verses()->create($validated);
+            return redirect(route('verses.index'))->with('message', 'success');
+        }
 
         // $request->user()->verses()->create($validated);
-
-        
-
-        return redirect(route('verses.index'))->with('message', 'success');
+        return redirect(route('verses.index'));
     }
 
     /**
